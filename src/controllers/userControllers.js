@@ -2,6 +2,7 @@ const { hash, compare } = require('bcryptjs')
 const knex = require('../database/knex/connection')
 
 class UserController {
+    
     async create(req, res) {
         const { name, email, password, city  } = req.body
         
