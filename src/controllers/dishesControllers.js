@@ -85,6 +85,10 @@ class DishesControllers {
 
     const plate = await knex("dishes").where({ id }).first();
 
+    plate.title = title ?? plate.title;
+    plate.description = description ?? plate.description;
+    plate.price = price ?? plate.price;
+
     const titleAlreadyUsed = await knex("dishes").where({ title }).first();
 
     const titleLength = title.length > 40;
@@ -110,7 +114,7 @@ class DishesControllers {
       throw new AppError("O título já está em uso", 400);
     }
 
-    await knex("dishes").where({ id }).first().update(plate);
+    await knex("dishes").where({ id }).update(plate);
 
     const ingredientsInsert = ingredients.map((ingredient) => {
       return {
