@@ -154,6 +154,8 @@ class DishesControllers {
 
       const dishesComponents = await Promise.all(
         plates.map(async (plate) => {
+          plate.description = plate.description.substring(0, 60).concat("...");
+          console.log(plate.description);
           const ingredients = await knex("ingredients").where({
             dish_id: plate.id,
           });
