@@ -155,7 +155,6 @@ class DishesControllers {
       const dishesComponents = await Promise.all(
         plates.map(async (plate) => {
           plate.description = plate.description.substring(0, 60).concat("...");
-          console.log(plate.description);
           const ingredients = await knex("ingredients").where({
             dish_id: plate.id,
           });
@@ -168,7 +167,9 @@ class DishesControllers {
       );
 
       return res.status(200).json(dishesComponents);
-    } else {
+    }
+    
+    if (ingredients) {
       const ingredientsSearch = await knex("ingredients")
         .whereLike("name", `%${ingredients}%`)
         .orderBy("name");
@@ -182,6 +183,16 @@ class DishesControllers {
       );
 
       return res.status(200).json(ingredientsPlates);
+    }
+
+    if (!title && !ingredients) {
+      const dishes = await knex("dishes").orderBy("title");
+
+      dishes.map((dish) => {
+        dish.description = dish.description.substring(0, 60).concat("...");
+      })
+
+      return res.status(200).json(dishes);
     }
   }
 
