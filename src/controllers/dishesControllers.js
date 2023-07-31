@@ -168,7 +168,7 @@ class DishesControllers {
 
       return res.status(200).json(dishesComponents);
     }
-    
+
     if (ingredients) {
       const ingredientsSearch = await knex("ingredients")
         .whereLike("name", `%${ingredients}%`)
@@ -190,7 +190,7 @@ class DishesControllers {
 
       dishes.map((dish) => {
         dish.description = dish.description.substring(0, 60).concat("...");
-      })
+      });
 
       return res.status(200).json(dishes);
     }
