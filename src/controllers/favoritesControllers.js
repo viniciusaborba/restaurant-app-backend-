@@ -6,6 +6,8 @@ class FavoritesControllers {
         const user_id = req.user.id
         
         const { name } = req.body
+        // return console.log(name)
+
 
         const alreadyExists = await knex('favorites').where({ name }).first()
         
@@ -32,15 +34,32 @@ class FavoritesControllers {
     }
 
     async delete(req,res) {
-        const { id } = req.params
+        const { name } = req.body
+        return console.log(name)
 
-        if (!id) {
+
+        if (!name) {
             throw new AppError("Prato não encontrado.", 404)
         }
         
-        await knex('favorites').where({ id }).delete()
+        await knex('favorites').where({ name }).delete()
 
         return res.status(200).json({ message: 'Excluído com sucesso' })
+    }
+
+    async check(req, res) {
+        const { name } = req.body
+
+        // return console.log(name)
+        const isFavorite = await knex('favorites').where({ name }).first()
+
+        if (isFavorite) {
+            return res.json({isFavorite: true})
+        } else {
+            return res.json({isFavorite: false})
+
+        }
+
     }
 }
 
