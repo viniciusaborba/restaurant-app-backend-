@@ -1,9 +1,16 @@
 const knex = require("../database/knex/connection");
 const AppError = require("../utils/AppError");
+const DiskStorage = require('../providers/DiskStorage')
 
 class DishesControllers {
   async create(req, res) {
     const { title, description, price, categories, ingredients } = req.body;
+
+    const { filename: imageFileName } = req.file
+
+    const diskStorage = new DiskStorage()
+
+    const filename = await diskStorage.saveFile(imageFileName)
 
     if (!description || !title || !price || !categories || !ingredients) {
       throw new AppError("Todos os campos são obrigatórios!", 400);
@@ -39,9 +46,12 @@ class DishesControllers {
       title,
       description,
       price,
+      image: filename
     });
 
-    const ingredientInsert = ingredients.map((ingredient) => {
+    const ingredientsArray = ingredients.split(',')
+    
+    const ingredientInsert = ingredientsArray.map((ingredient) => {
       return {
         dish_id,
         name: ingredient,
@@ -50,7 +60,9 @@ class DishesControllers {
 
     await knex("ingredients").insert(ingredientInsert);
 
-    const categoriesInsert = categories.map((category) => {
+    const categoriesArray = categories.split(',')
+
+    const categoriesInsert = categoriesArray.map((category) => {
       return {
         dish_id,
         name: category,

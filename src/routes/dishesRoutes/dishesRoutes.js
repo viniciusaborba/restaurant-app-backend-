@@ -13,7 +13,7 @@ const dishImageController = new DishImageControllers
 
 dishesRoutes.use(ensureAuthenticate)
 
-dishesRoutes.post('/', dishesControllers.create)
+dishesRoutes.post('/', upload.single('image'), dishesControllers.create)
 dishesRoutes.delete('/:id', dishesControllers.delete)
 dishesRoutes.put('/:id', dishesControllers.update)
 dishesRoutes.get('/', dishesControllers.index)
