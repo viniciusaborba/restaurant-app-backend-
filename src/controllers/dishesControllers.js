@@ -90,6 +90,12 @@ class DishesControllers {
   async update(req, res) {
     const { title, description, price, categories, ingredients } = req.body;
     const { id } = req.params;
+    
+    const { filename: imageFileName } = req.file
+
+    const diskStorage = new DiskStorage()
+
+    const filename = await diskStorage.saveFile(imageFileName)
 
     if (!description || !title || !price || !categories || !ingredients) {
       throw new AppError("Todos os campos são obrigatórios", 400);
@@ -97,9 +103,14 @@ class DishesControllers {
 
     const plate = await knex("dishes").where({ id }).first();
 
+    if (plate.image) {
+      await diskStorage.deleteFile(plate.image)
+    }
+
     plate.title = title ?? plate.title;
     plate.description = description ?? plate.description;
     plate.price = price ?? plate.price;
+    plate.image = filename ?? plate.image
 
     const titleAlreadyUsed = await knex("dishes").where({ title }).first();
 
@@ -128,7 +139,9 @@ class DishesControllers {
 
     await knex("dishes").where({ id }).update(plate);
 
-    const ingredientsInsert = ingredients.map((ingredient) => {
+    const ingredientsArray = ingredients.split(',')
+
+    const ingredientsInsert = ingredientsArray.map((ingredient) => {
       return {
         dish_id: id,
         name: ingredient,
@@ -139,7 +152,9 @@ class DishesControllers {
 
     await knex("ingredients").where({ dish_id: id }).insert(ingredientsInsert);
 
-    const categoriesInsert = categories.map((category) => {
+    const categoriesArray = categories.split(',')
+
+    const categoriesInsert = categoriesArray.map((category) => {
       return {
         dish_id: id,
         name: category,

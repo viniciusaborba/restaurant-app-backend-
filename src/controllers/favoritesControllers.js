@@ -5,8 +5,7 @@ class FavoritesControllers {
   async create(req, res) {
     const user_id = req.user.id;
 
-    const { name, imageUrl } = req.body;
-    // return console.log(name)
+    const { name, imageUrl, dish_id } = req.body;
 
     const alreadyExists = await knex("favorites").where({ name }).first();
 
@@ -19,7 +18,7 @@ class FavoritesControllers {
       throw new AppError("Name is required", 400);
     }
 
-    await knex("favorites").insert({ name, user_id, imageUrl });
+    await knex("favorites").insert({ name, user_id, imageUrl, dish_id });
 
     return res.status(201).json({ message: "Favorite created successfully" });
   }
