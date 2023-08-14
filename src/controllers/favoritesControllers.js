@@ -45,9 +45,9 @@ class FavoritesControllers {
 
   async check(req, res) {
     const { name } = req.query;
-    const isFavorite = await knex("favorites").where({ name }).first();
+    const favoriteDishExists = await knex("favorites").where({ name }).first();
 
-    if (isFavorite) {
+    if (favoriteDishExists) {
       return res.json({ isFavorite: true });
     } else {
       return res.json({ isFavorite: false });
