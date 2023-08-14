@@ -1,4 +1,5 @@
 const { hash, compare } = require("bcryptjs");
+const DiskStorage = require("../providers/DiskStorage");
 const knex = require("../database/knex/connection");
 const AppError = require("../utils/AppError");
 
@@ -57,6 +58,12 @@ class UserController {
     const { name, email, newPassword, oldPassword, city } = req.body;
     const user_id = req.user.id;
 
+    const { filename: imageFileName } = req.file;
+
+    const diskStorage = new DiskStorage();
+
+    const filename = await diskStorage.saveFile(imageFileName);
+
     const user = await knex("users").where({ id: user_id }).first();
     const matchPassword = await compare(oldPassword, user.password);
     const passwordAlreadyBeingUsed = await compare(newPassword, user.password);
@@ -64,6 +71,7 @@ class UserController {
     user.name = name ?? user.name;
     user.email = email ?? user.email;
     user.city = city ?? user.city;
+    user.avatar = filename ?? user.avatar;
 
     if (!matchPassword) {
       throw new AppError("Senha antiga incorreta", 403);
@@ -85,7 +93,7 @@ class UserController {
 
     await knex("users").where({ id: user_id }).update(user);
 
-    res.status(200).json({ message: "Dados atualizados com sucesso" });
+    res.status(200).json(user);
   }
 }
 
