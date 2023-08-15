@@ -67,6 +67,22 @@ class CartController {
       message: "Prato removido do carrinho!",
     });
   }
+
+  async check(req, res) {
+    const getRequestQuerySchema = z.object({
+      title: z.string()
+    })
+
+    const { title } = getRequestQuerySchema.parse(req.query)
+
+    const dishIsInCart = await knex('cart').where({ title }).first()
+
+    if (dishIsInCart) {
+      return res.status(200).json({ isInCart: true })
+    } else {
+      res.status(200).json({ isInCart: false })
+    }
+  }
 }
 
 module.exports = CartController;

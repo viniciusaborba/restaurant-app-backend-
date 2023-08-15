@@ -11,5 +11,6 @@ cartRoutes.post("/", cartController.create);
 cartRoutes.get("/", cartController.index);
 cartRoutes.get("/:id", cartController.show);
 cartRoutes.delete("/:id", cartController.delete);
+cartRoutes.get('/status', cartController.check)
 
 module.exports = cartRoutes;
