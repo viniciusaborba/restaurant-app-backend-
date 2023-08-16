@@ -4,7 +4,7 @@ const DiskStorage = require('../providers/DiskStorage')
 
 class DishesControllers {
   async create(req, res) {
-    const { title, description, price, categories, ingredients } = req.body;
+    const { title, description, price, category, ingredients } = req.body;
 
     const { filename: imageFileName } = req.file
 
@@ -12,7 +12,7 @@ class DishesControllers {
 
     const filename = await diskStorage.saveFile(imageFileName)
 
-    if (!description || !title || !price || !categories || !ingredients) {
+    if (!description || !title || !price || !category || !ingredients) {
       throw new AppError("Todos os campos são obrigatórios!", 400);
     }
 
@@ -46,7 +46,8 @@ class DishesControllers {
       title,
       description,
       price,
-      image: filename
+      image: filename,
+      category,
     });
 
     const ingredientsArray = ingredients.split(',')
@@ -59,17 +60,6 @@ class DishesControllers {
     });
 
     await knex("ingredients").insert(ingredientInsert);
-
-    const categoriesArray = categories.split(',')
-
-    const categoriesInsert = categoriesArray.map((category) => {
-      return {
-        dish_id,
-        name: category,
-      };
-    });
-
-    await knex("categories").insert(categoriesInsert);
 
     res.status(200).json({ message: "Prato criado com sucesso" });
   }
@@ -88,7 +78,7 @@ class DishesControllers {
   }
 
   async update(req, res) {
-    const { title, description, price, categories, ingredients } = req.body;
+    const { title, description, price, category, ingredients } = req.body;
     const { id } = req.params;
     
     const { filename: imageFileName } = req.file
@@ -97,7 +87,7 @@ class DishesControllers {
 
     const filename = await diskStorage.saveFile(imageFileName)
 
-    if (!description || !title || !price || !categories || !ingredients) {
+    if (!description || !title || !price || !category || !ingredients) {
       throw new AppError("Todos os campos são obrigatórios", 400);
     }
 
@@ -111,6 +101,7 @@ class DishesControllers {
     plate.description = description ?? plate.description;
     plate.price = price ?? plate.price;
     plate.image = filename ?? plate.image
+    plate.category = category ?? plate.category
 
     const titleAlreadyUsed = await knex("dishes").where({ title }).first();
 
@@ -152,18 +143,6 @@ class DishesControllers {
 
     await knex("ingredients").where({ dish_id: id }).insert(ingredientsInsert);
 
-    const categoriesArray = categories.split(',')
-
-    const categoriesInsert = categoriesArray.map((category) => {
-      return {
-        dish_id: id,
-        name: category,
-      };
-    });
-
-    await knex("categories").where({ dish_id: id }).delete();
-    await knex("categories").where({ dish_id: id }).insert(categoriesInsert);
-
     res.status(200).json({ message: "Dados do prato atualizados com sucesso" });
   }
 
@@ -185,11 +164,8 @@ class DishesControllers {
           const ingredients = await knex("ingredients").where({
             dish_id: plate.id,
           });
-          const categories = await knex("categories").where({
-            dish_id: plate.id,
-          });
-
-          return { ...plate, ingredients, categories };
+    
+          return { ...plate, ingredients };
         })
       );
 
@@ -228,13 +204,12 @@ class DishesControllers {
 
     const plateInformation = await knex("dishes").where({ id }).first();
     const ingredients = await knex("ingredients").where({ dish_id: id });
-    const categories = await knex("categories").where({ dish_id: id });
 
     if (!plateInformation) {
       throw new AppError("Prato inexistente", 404);
     }
 
-    res.status(200).json({ ...plateInformation, ingredients, categories });
+    res.status(200).json({ ...plateInformation, ingredients });
   }
 }
 
