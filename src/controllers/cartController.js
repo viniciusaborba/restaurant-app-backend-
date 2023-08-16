@@ -70,17 +70,17 @@ class CartController {
 
   async check(req, res) {
     const getRequestQuerySchema = z.object({
-      title: z.string()
-    })
+      title: z.string(),
+    });
 
-    const { title } = getRequestQuerySchema.parse(req.query)
+    const { title } = getRequestQuerySchema.parse(req.query);
 
-    const dishIsInCart = await knex('cart').where({ title }).first()
+    const dishIsInCart = await knex("cart").where({ title }).first();
 
     if (dishIsInCart) {
-      return res.status(200).json({ isInCart: true })
+      return res.status(200).json({ isInCart: true });
     } else {
-      res.status(200).json({ isInCart: false })
+      res.status(200).json({ isInCart: false });
     }
   }
 }
