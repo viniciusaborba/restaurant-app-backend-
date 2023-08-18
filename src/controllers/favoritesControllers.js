@@ -5,20 +5,24 @@ class FavoritesControllers {
   async create(req, res) {
     const user_id = req.user.id;
 
-    const { name, imageUrl, dish_id } = req.body;
+    const { title, image, category, id } = req.body;
 
-    const alreadyExists = await knex("favorites").where({ name }).first();
+    const alreadyExists = await knex("favorites")
+      .where({ name: title })
+      .first();
 
     if (alreadyExists) {
-      await knex("favorites").where({ name }).delete();
+      await knex("favorites").where({ name: title }).delete();
       return res.status(200).json({ message: "Este prato já existe!" });
     }
 
-    if (!name) {
-      throw new AppError("Name is required", 400);
-    }
-
-    await knex("favorites").insert({ name, user_id, imageUrl, dish_id });
+    await knex("favorites").insert({
+      name: title,
+      category,
+      imageUrl: image,
+      dish_id: id,
+      user_id,
+    });
 
     return res.status(201).json({ message: "Favorite created successfully" });
   }
