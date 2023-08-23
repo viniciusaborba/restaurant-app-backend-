@@ -50,7 +50,7 @@ class DishesControllers {
       category,
     });
 
-    const ingredientsArray = ingredients.split(',')
+    const ingredientsArray = JSON.parse(ingredients.split(','))
     
     const ingredientInsert = ingredientsArray.map((ingredient) => {
       return {
@@ -130,7 +130,7 @@ class DishesControllers {
 
     await knex("dishes").where({ id }).update(plate);
 
-    const ingredientsArray = ingredients.split(',')
+    const ingredientsArray = JSON.parse(ingredients.split(','))
 
     const ingredientsInsert = ingredientsArray.map((ingredient) => {
       return {
